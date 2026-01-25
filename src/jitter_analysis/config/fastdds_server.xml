@@ -1,0 +1,20 @@
+<profiles>
+  <participant profile_name="server_profile" is_default_profile="true">
+    <rtps>
+      <builtin>
+        <discovery_config>
+          <discoveryProtocol>SERVER</discoveryProtocol>
+          <server_client_version>SERVER</server_client_version>
+          <metatrafficUnicastLocatorList>
+            <locator>
+              <udpv4>
+                <address>192.168.4.3</address>
+                <port>11811</port>
+              </udpv4>
+            </locator>
+          </metatrafficUnicastLocatorList>
+        </discovery_config>
+      </builtin>
+    </rtps>
+  </participant>
+</profiles>

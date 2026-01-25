@@ -1,0 +1,17 @@
+graph LR
+    subgraph NetA["192.168.3.0/24 网段"]
+        A1["主机 A (192.168.3.x)<br/>ROS2 Node<br/>→ 作为 Client<br/>→ 仅与 Server 单播通信"]
+    end
+
+    subgraph NetB["192.168.4.0/24 网段"]
+        B1["主机 B (192.168.4.x)<br/>ROS2 Node<br/>→ 作为 Client<br/>→ 仅与 Server 单播通信"]
+    end
+
+    subgraph DS["Discovery Server（工业推荐部署）"]
+        DS1["Discovery Server<br/>(192.168.3.10 或独立网段)<br/>✔ 无需多播<br/>✔ 统一管理节点发现<br/>✔ 跨网段最稳定"]
+    end
+
+    A1 -->|单播 UDP/TCP<br/>Participant & Endpoint Discovery| DS1
+    B1 -->|单播 UDP/TCP<br/>Participant & Endpoint Discovery| DS1
+
+    A1 <-->|Topic 数据流（单播/多播均可）| B1

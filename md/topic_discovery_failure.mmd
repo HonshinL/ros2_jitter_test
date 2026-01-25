@@ -1,0 +1,21 @@
+graph LR
+    subgraph NetA["192.168.3.0/24 网段"]
+        A1["主机 A (192.168.3.x)<br/>ROS2 Node<br/>✔ Node 可见<br/>✔ Topic 可见<br/>✔ 数据可互通"]
+    end
+
+    subgraph NetB["192.168.4.0/24 网段"]
+        B1["主机 B (192.168.4.x)<br/>ROS2 Node<br/>✔ Node 可见<br/>✔ Topic 可见<br/>✔ 数据可互通"]
+    end
+
+    subgraph Router["三层路由器 / L3 交换机（已开启多播）"]
+        R1["路由器配置：<br/>• IGMP Proxy / PIM-SM 已启用<br/>• 224.0.0.0/4 多播可跨网段<br/>• UDP 7400–7500 已放行<br/>• IGMP Snooping 正常工作"]
+    end
+
+    A1 -->|Unicast OK<br/>Node Discovery| R1
+    R1 -->|Unicast OK<br/>Node Discovery| B1
+
+    A1 -->|Multicast 224.0.0.x<br/>✔ Participant Discovery<br/>✔ Endpoint Discovery| R1
+    R1 -->|Multicast 转发正常<br/>✔ Topic Discovery| B1
+
+    A1 -->|✔ RTPS 数据流<br/>✔ Topic 数据传输| R1
+    R1 -->|✔ RTPS 数据流| B1
