@@ -13,3 +13,9 @@ echo $ROS_DOMAIN_ID && echo $RMW_IMPLEMENTATION && echo $ROS_LOCALHOST_ONLY
 ddsrouter -c client.yaml
 
 sudo ufw allow 11666/udp
+sudo ufw allow 7400:12000/udp
+sudo ufw delete allow 7400:12000/udp
+sudo ufw allow from 192.168.1.0/16 to any port 7400:12000 proto udp
+sudo ufw allow from 224.0.0.0/4 to any port 7400:12000 proto udp
+sudo ufw allow from 192.168.0.0/16 to any port 1024:65535 proto udp
+sudo ufw delete 2
