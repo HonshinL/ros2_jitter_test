@@ -1,0 +1,16 @@
+allowlist:
+  - name: "*"
+
+participants:
+  # 本地局域网部分
+  - name: "Local_B"
+    kind: "local"
+    domain: 10
+
+  # 跨网段部分：主动找电脑 A 握手
+  - name: "WAN_Client"
+    kind: "wan"
+    connection-addresses:
+      - ip: "192.168.4.3"  # <--- 这里填电脑 A 的公网 IP
+        port: 11666
+        transport: "udp"
