@@ -1,0 +1,18 @@
+graph LR
+    subgraph System_Layer [系统层：地基隔离]
+        A[修改 GRUB: isolcpus,nohz_full=14] --> B(内核隔离并减少时钟中断)
+        C[BIOS/Power: 禁用 C-States] --> D(消除唤醒延迟)
+        P[Setting: CPU Performance Governor] --> Q(锁定最高频率/P-State)
+    end
+
+    subgraph Service_Layer [服务层：排除干扰]
+        E[停止 irqbalance] --> F(中断不漂移)
+        G[smp_affinity] --> H(隔离核心 14 的硬中断)
+    end
+
+    subgraph App_Layer [应用层：精准控制]
+        I[taskset/cgroup 绑定] --> J(程序独占核心)
+        K[chrt 实时优先级] --> L(抢占式处理)
+    end
+
+    B & D & Q & F & H & J & L --> N[极致实时性能 & 稳定延迟]

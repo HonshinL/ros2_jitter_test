@@ -17,5 +17,5 @@ echo "正在核心 14 上启动 mock_robot_driver..."
 
 # 4. 执行命令
 # 使用 exec 可以让脚本进程被目标程序替换，方便管理信号
-ddsrouter -c $SCRIPT_DIR/client.yaml
+# ddsrouter -c $SCRIPT_DIR/client.yaml
 taskset -c 14 ros2 run jitter_analysis mock_robot_driver
