@@ -1,0 +1,16 @@
+allowlist:
+  - name: "*"  # 转发所有主题，调试通了以后建议限制范围
+
+participants:
+  # 本地局域网部分：与本地其他 ROS 2 节点通信
+  - name: "Local_A"
+    kind: "local"
+    domain: 10
+
+  # 跨网段部分：作为服务端等待连接
+  - name: "WAN_Server"
+    kind: "wan"
+    listening-addresses:
+      - ip: "0.0.0.0"
+        port: 11666
+        transport: "udp"
