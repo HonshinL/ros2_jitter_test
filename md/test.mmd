@@ -1,0 +1,31 @@
+sequenceDiagram
+    autonumber
+
+    participant Core as Isolated CPU Core<br>(独占核心)
+    participant Ctrl as Control Thread<br>(SCHED_FIFO, sleep_until)
+    participant HW as Hardware Interface<br>(Non-blocking)
+    participant Driver as Servo Driver<br>(Position/Velocity/Torque)
+    participant Motor as Motor + Encoder
+
+    Note over Core: 该 CPU 核心无 IRQ、无 CFS 任务<br>仅运行控制线程
+
+    Note over Ctrl: 周期开始 (T = 0 ms)<br>sleep_until 精确对齐周期
+
+    Ctrl->>Ctrl: 唤醒 jitter < 50 µs<br>(由 SCHED_FIFO + CPU 隔离保证)
+
+    Ctrl->>HW: read() 非阻塞读取状态
+    HW->>Driver: 发送快速状态请求 (PDO/RT 通信)
+    Driver->>Motor: 读取编码器/电流环
+    Motor-->>Driver: 返回状态
+    Driver-->>HW: 返回状态
+    HW-->>Ctrl: 返回关节状态
+
+    Note over Ctrl: 控制律计算 (PID/MPC/动力学)<br>典型耗时 0.05~0.2 ms
+
+    Ctrl->>HW: write() 非阻塞写入控制指令
+    HW->>Driver: 下发目标位置/速度/力矩
+    Driver->>Motor: 执行控制
+
+    Note over Ctrl: 周期结束 (T = 8.000 ms ± 0.05 ms)
+
+    Note over Core: 下一周期 sleep_until<br>确保周期不累积误差

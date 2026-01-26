@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>  // 用于设置输出精度
 #include <csignal>  // 用于信号处理
+#include <fstream>  // 用于文件操作
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
@@ -53,6 +54,7 @@ public:
     if (!should_exit && interval_count_ > 0)
     {
       analyze_results();
+      save_data_to_file();
     }
   }
 
@@ -153,6 +155,34 @@ private:
     std::cout << "最大延时: " << std::fixed << std::setprecision(4) << max_v << " ms" << std::endl;
     std::cout << "最小延时: " << std::fixed << std::setprecision(4) << min_v << " ms" << std::endl;
     std::cout << "==============================" << std::endl;
+  }
+
+  void save_data_to_file()
+  {
+    if (interval_count_ == 0)
+    {
+      std::cout << "没有数据需要保存。" << std::endl;
+      return;
+    }
+
+    // 打开文件
+    std::ofstream outfile("jitter.txt");
+    if (!outfile.is_open())
+    {
+      std::cerr << "无法打开文件 jitter.txt 进行写入。" << std::endl;
+      return;
+    }
+
+    // 写入数据
+    std::cout << "\n正在保存数据到 jitter.txt..." << std::endl;
+    for (size_t i = 0; i < interval_count_; i++)
+    {
+      outfile << std::fixed << std::setprecision(6) << intervals_[i] << std::endl;
+    }
+
+    // 关闭文件
+    outfile.close();
+    std::cout << "数据保存完成，共 " << interval_count_ << " 个样本。" << std::endl;
   }
 
   double sampling_time_;
