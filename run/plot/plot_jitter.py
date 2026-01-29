@@ -43,8 +43,10 @@ def analyze_jitter_data(data):
         'sample_count': len(data)
     }
 
+from scipy.stats import norm  # 新增：用于计算正态分布曲线
+
 def plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, sampling_time=10.0, xlim=None):
-    """可视化抖动分析结果"""
+    """可视化抖动分析结果（含拟合正态分布曲线）"""
     if analysis_result is None:
         print("没有可用的分析结果。")
         return
@@ -66,43 +68,51 @@ def plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, sampli
     print(f"最小延时: {min_v:.4f} ms")
     print("="*30)
     
-    # 创建图表
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10))
     
-    # 1. 频率分布直方图 - 设置 align='mid' 实现居中显示
-    ax1.hist(data, bins=100, color='#3498db', edgecolor='white', alpha=0.8, align='mid')
-    ax1.axvline(8.0, color='#e74c3c', linestyle='--', label='目标周期 (8ms)')
-    ax1.axvline(mean_v, color='#2ecc71', linestyle='-.', label=f'实际平均值 ({mean_v:.4f} ms)')
+    # --- 1. 频率分布直方图 + 正态分布曲线 ---
+    # 修改点：density=True，将纵轴变为概率密度
+    n, bins, patches = ax1.hist(data, bins=100, color='#3498db', edgecolor='white', 
+                                alpha=0.6, align='mid', density=True, label='实际分布')
+    
+    # 计算正态分布曲线的 x 和 y
+    # 根据数据范围生成 200 个平滑的点
+    x_curve = np.linspace(min(data), max(data), 200)
+    y_curve = norm.pdf(x_curve, mean_v, std_v)
+    
+    # 绘制拟合曲线
+    ax1.plot(x_curve, y_curve, color='#e67e22', linewidth=2.5, label='正态分布拟合')
+    
+    # ax1.axvline(8.0, color='#2ecc71', linestyle='--', label='目标周期 (8ms)')
+    ax1.axvline(mean_v, color='#e74c3c', linestyle='-.', label=f'实际平均值')
+    
     ax1.set_title('采样周期间隔分布 (Histogram)')
     ax1.set_xlabel('时间间隔 (ms)')
-    ax1.set_ylabel('频次')
+    ax1.set_ylabel('概率密度')
     
-    # 设置x轴区间
     if xlim is not None:
         ax1.set_xlim(xlim)
     
     ax1.legend()
     ax1.grid(True, alpha=0.3)
 
-    # 2. 随时间变化的波动曲线
+    # --- 2. 随时间变化的波动曲线 (保持不变) ---
     ax2.plot(data, color='#2ecc71', linewidth=0.5)
     ax2.set_title('时间间隔波动趋势 (Time Series)')
     ax2.set_xlabel('样本序号')
     ax2.set_ylabel('间隔 (ms)')
-    ax2.set_ylim(0, 16)  # 聚焦在 0-16ms 观察
+    ax2.set_ylim(max(0, mean_v-5), mean_v+5) # 稍微动态调整范围
     ax2.axhline(8.0, color='#e74c3c', linestyle='--')
     ax2.grid(True, alpha=0.3)
 
     plt.tight_layout()
     
-    # 保存图片
     if save_plot:
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"jitter_analysis_{timestamp}.png"
+        filename = f"jitter_fit_{timestamp}.png"
         plt.savefig(filename, dpi=300, bbox_inches='tight')
         print(f"\n图表已保存为: {filename}")
     
-    # 显示图表
     if show_plot:
         plt.show()
     else:
@@ -124,7 +134,8 @@ def main():
         return
     
     # 可视化数据，设置x轴区间为[7.5, 8.5]，聚焦在目标周期附近
-    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, xlim=(7.5, 8.5))
+    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, xlim=(0.0, 20.0))
+    # plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True)
 
 if __name__ == '__main__':
     main()
