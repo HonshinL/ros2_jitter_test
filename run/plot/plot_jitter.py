@@ -134,7 +134,7 @@ def main():
         return
     
     # 可视化数据，设置x轴区间为[7.5, 8.5]，聚焦在目标周期附近
-    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, xlim=(0.0, 20.0))
+    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, xlim=(7.0, 9.0))
     # plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True)
 
 if __name__ == '__main__':
