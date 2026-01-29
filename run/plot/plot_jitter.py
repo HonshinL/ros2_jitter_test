@@ -43,7 +43,7 @@ def analyze_jitter_data(data):
         'sample_count': len(data)
     }
 
-def plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, sampling_time=10.0):
+def plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, sampling_time=10.0, xlim=None):
     """可视化抖动分析结果"""
     if analysis_result is None:
         print("没有可用的分析结果。")
@@ -76,6 +76,11 @@ def plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, sampli
     ax1.set_title('采样周期间隔分布 (Histogram)')
     ax1.set_xlabel('时间间隔 (ms)')
     ax1.set_ylabel('频次')
+    
+    # 设置x轴区间
+    if xlim is not None:
+        ax1.set_xlim(xlim)
+    
     ax1.legend()
     ax1.grid(True, alpha=0.3)
 
@@ -118,8 +123,8 @@ def main():
     if analysis_result is None:
         return
     
-    # 可视化数据
-    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True)
+    # 可视化数据，设置x轴区间为[7.5, 8.5]，聚焦在目标周期附近
+    plot_jitter_analysis(analysis_result, show_plot=True, save_plot=True, xlim=(7.5, 8.5))
 
 if __name__ == '__main__':
     main()
